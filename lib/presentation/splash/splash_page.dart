@@ -1,4 +1,4 @@
-part of 'splash_screen_imports.dart';
+part of 'splash_page_imports.dart';
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 

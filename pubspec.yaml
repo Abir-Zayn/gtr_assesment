@@ -37,6 +37,8 @@ dependencies:
   go_router: ^15.1.1
   crystal_navigation_bar: ^1.0.4
   flutter_bloc:
+  font_awesome_icon_class: 
+  google_fonts: 
 
 
 dev_dependencies:
