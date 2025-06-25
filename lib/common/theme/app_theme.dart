@@ -9,7 +9,7 @@ const Color appLightBtnColor = Color(0xFFFFD23F);
 const Color appLightTextColor = Color(0xFF000000);
 
 const Color appDarkColor = Color(0xFF0C1B33);
-const Color appDarkBtnColor = Color(0xFF8C8A93);
+const Color appDarkBtnColor = Color.fromARGB(255, 220, 129, 18);
 const Color appDarkTextColor = Color(0xFFFFFFFF);
 
 // Light and Dark Theme Data

@@ -77,62 +77,36 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 40),
 
               // Email TextField
-              TextFormField(
+              AppTextfield(
                 controller: emailController,
+                labelText: 'Email',
+                hintText: 'Enter your email',
+                prefixIcon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'Enter your email',
-                  prefixIcon: Icon(
-                    Icons.email_outlined,
-                    size: 15,
-                    color: isDarkMode ? Colors.white70 : Colors.grey[600]!,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-
-                  filled: true,
-                  fillColor: Colors.transparent,
-                ),
               ),
 
               const SizedBox(height: 20),
 
               // Password TextField
-              TextFormField(
+              AppTextfield(
                 controller: passwordController,
+                labelText: 'Password',
+                hintText: 'Enter your password',
+                prefixIcon: Icons.lock_outline,
                 obscureText: !passwordVisibility,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  hintText: 'Enter your password',
-                  prefixIcon: Icon(
+                suffixIcon: IconButton(
+                  icon: Icon(
                     size: 15,
-                    Icons.lock_outline,
+                    passwordVisibility
+                        ? Icons.visibility
+                        : Icons.visibility_off,
                     color: isDarkMode ? Colors.white70 : Colors.grey[600]!,
                   ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      size: 15,
-                      passwordVisibility
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: isDarkMode ? Colors.white70 : Colors.grey[600]!,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        passwordVisibility = !passwordVisibility;
-                      });
-                    },
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-
-                  filled: true,
-                  fillColor: Colors.transparent,
+                  onPressed: () {
+                    setState(() {
+                      passwordVisibility = !passwordVisibility;
+                    });
+                  },
                 ),
               ),
 

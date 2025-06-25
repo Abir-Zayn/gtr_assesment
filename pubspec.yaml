@@ -39,6 +39,8 @@ dependencies:
   flutter_bloc:
   font_awesome_icon_class: 
   google_fonts: 
+  dartz:
+  http: 
 
 
 dev_dependencies:
