@@ -41,6 +41,7 @@ dependencies:
   google_fonts: 
   dartz:
   http: 
+  equatable: 
 
 
 dev_dependencies:

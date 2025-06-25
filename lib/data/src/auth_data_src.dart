@@ -40,16 +40,16 @@ class AuthRemoteDataSrcImpl implements AuthDataSrc {
           // If response is just a success message, create user from request
           return LoginResponseModel(
             id: '1',
-            email: req.userName,
-            name: req.userName.split('@')[0],
+            email: req.userEmail,
+            name: req.userEmail.split('@')[0],
             token: jsonResponse['token'] ?? 'login_success_token',
           );
         } else if (jsonResponse is String) {
           // If response is just a string (success message)
           return LoginResponseModel(
             id: '1',
-            email: req.userName,
-            name: req.userName.split('@')[0],
+            email: req.userEmail,
+            name: req.userEmail.split('@')[0],
             token: 'login_success_token',
           );
         } else {
