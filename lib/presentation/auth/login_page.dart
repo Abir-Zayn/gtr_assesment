@@ -12,6 +12,10 @@ class _LoginPageState extends State<LoginPage> {
   final passwordController = TextEditingController();
   bool passwordVisibility = false;
 
+ //LoginLoading --> Spinner
+ //LoginSuccess --> navigate to Home
+ //LoginFailure --> Error
+
   @override
   void dispose() {
     emailController.dispose();
@@ -41,6 +45,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Find out the user current theme
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
 
@@ -64,6 +69,8 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ],
       ),
+
+      // If Login is Successful or Failure State
       body: BlocListener<LoginCubit, LoginState>(
         listener: (context, state) {
           if (state is LoginSuccess) {
@@ -236,7 +243,9 @@ class _LoginPageState extends State<LoginPage> {
                         icon: FontAwesomeIcons.google,
                         label: 'Google',
                         iconColor: Colors.red[600]!,
-                        onPressed: () {},
+                        onPressed: () {
+                          futureUpdateNotice();
+                        },
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -245,7 +254,9 @@ class _LoginPageState extends State<LoginPage> {
                         icon: Icons.facebook,
                         label: 'Facebook',
                         iconColor: Colors.blue[700]!,
-                        onPressed: () {},
+                        onPressed: () {
+                          futureUpdateNotice();
+                        },
                       ),
                     ),
                   ],

@@ -14,18 +14,16 @@ class CustomerCubit extends Cubit<CustomerState> {
   Future<void> loadCustomerList({
     String searchQuery = '',
     int pageNo = 1,
-    int pageSize = 20,
+    int pageSize = 15, // Changed default to 15
     String sortBy = 'Balance',
     required String token,
   }) async {
     try {
-      if (pageNo == 1) {
-        emit(CustomerLoading());
-      } else {
-        emit(CustomerLoadingMore());
-      }
+      emit(CustomerLoading());
 
-      debugPrint('Loading customers - Page: $pageNo, Query: $searchQuery'); // Debug log
+      debugPrint(
+        'Loading customers - Page: $pageNo, Query: $searchQuery',
+      ); // Debug log
 
       final result = await customerListUsecase.call(
         searchQuery: searchQuery,
@@ -41,32 +39,10 @@ class CustomerCubit extends Cubit<CustomerState> {
           emit(CustomerError(error));
         },
         (customerList) {
-          debugPrint('Customer loaded: ${customerList.customers.length} items'); // Debug log
-          
-          if (pageNo == 1) {
-            emit(CustomerLoaded(customerList));
-          } else {
-            // Handle pagination - append to existing list
-            if (state is CustomerLoaded) {
-              final currentState = state as CustomerLoaded;
-              final updatedCustomers = [
-                ...currentState.customerList.customers,
-                ...customerList.customers,
-              ];
-              
-              final updatedCustomerList = CustomerList(
-                customers: updatedCustomers,
-                totalCount: customerList.totalCount,
-                currentPage: customerList.currentPage,
-                pageSize: customerList.pageSize,
-                hasNextPage: customerList.hasNextPage,
-              );
-              
-              emit(CustomerLoaded(updatedCustomerList));
-            } else {
-              emit(CustomerLoaded(customerList));
-            }
-          }
+          debugPrint(
+            'Customer loaded: ${customerList.customers.length} items',
+          ); // Debug log
+          emit(CustomerLoaded(customerList));
         },
       );
     } catch (e) {

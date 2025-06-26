@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gtr_assessment/common/components/app_text.dart';
 import 'package:gtr_assessment/domain/entities/customer.dart';
 
 class CustomerDetailsPage extends StatelessWidget {
@@ -11,210 +12,142 @@ class CustomerDetailsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Customer Details'),
-        backgroundColor: Colors.blue,
+        backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Card with Image and Basic Info
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+            // Customer Header
+            customerDetailsHead(),
+
+            const SizedBox(height: 24),
+
+            // Customer Details
+            sectionData('Contact', [
+              details('Email', customer.email),
+              details('Phone', customer.phone),
+              details('Address', customer.primaryAddress),
+            ], context),
+
+            sectionData('Financial', [
+              details('Total Due', '\$${customer.totalDue.toStringAsFixed(2)}'),
+              details(
+                'Total Sales',
+                '\$${customer.totalSalesValue.toStringAsFixed(2)}',
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.grey[300],
-                      backgroundImage:
-                          customer.imagePath != null
-                              ? NetworkImage(
-                                'https://www.pqstec.com/InvoiceApps/${customer.imagePath}',
-                              )
-                              : null,
-                      child:
-                          customer.imagePath == null
-                              ? Text(
-                                customer.name.isNotEmpty
-                                    ? customer.name[0].toUpperCase()
-                                    : 'C',
-                                style: const TextStyle(
-                                  fontSize: 36,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              )
-                              : null,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      customer.name,
+              details(
+                'Total Collection',
+                '\$${customer.totalCollection.toStringAsFixed(2)}',
+              ),
+            ], context),
+
+            sectionData('Recent Activity', [
+              details(
+                'Last Sales Date',
+                customer.lastSalesDate.isEmpty ? 'N/A' : customer.lastSalesDate,
+              ),
+              details(
+                'Last Invoice',
+                customer.lastInvoiceNo.isEmpty ? 'N/A' : customer.lastInvoiceNo,
+              ),
+              details(
+                'Last Product',
+                customer.lastSoldProduct.isEmpty
+                    ? 'N/A'
+                    : customer.lastSoldProduct,
+              ),
+            ], context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget customerDetailsHead() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue.shade200),
+      ),
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 40,
+            backgroundImage:
+                customer.imagePath != null
+                    ? NetworkImage(
+                      'https://www.pqstec.com/InvoiceApps/${customer.imagePath}',
+                    )
+                    : null,
+            child:
+                customer.imagePath == null
+                    ? Text(
+                      customer.name.isNotEmpty
+                          ? customer.name[0].toUpperCase()
+                          : 'Null',
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      customer.custType,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Contact Information
-            _buildInfoCard('Contact Information', [
-              _buildInfoRow('Email', customer.email, Icons.email),
-              _buildInfoRow('Phone', customer.phone, Icons.phone),
-              _buildInfoRow(
-                'Primary Address',
-                customer.primaryAddress,
-                Icons.location_on,
-              ),
-              if (customer.secondaryAddress != null)
-                _buildInfoRow(
-                  'Secondary Address',
-                  customer.secondaryAddress!,
-                  Icons.location_on_outlined,
-                ),
-              if (customer.clientCompanyName != null)
-                _buildInfoRow(
-                  'Company',
-                  customer.clientCompanyName!,
-                  Icons.business,
-                ),
-            ]),
-
-            const SizedBox(height: 16),
-
-            // Financial Information
-            _buildInfoCard('Financial Information', [
-              _buildInfoRow(
-                'Total Due',
-                '\$${customer.totalDue.toStringAsFixed(2)}',
-                Icons.account_balance_wallet,
-              ),
-              _buildInfoRow(
-                'Total Sales Value',
-                '\$${customer.totalSalesValue.toStringAsFixed(2)}',
-                Icons.trending_up,
-              ),
-              _buildInfoRow(
-                'Total Collection',
-                '\$${customer.totalCollection.toStringAsFixed(2)}',
-                Icons.savings,
-              ),
-              _buildInfoRow(
-                'Total Sales Return',
-                '\$${customer.totalSalesReturnValue.toStringAsFixed(2)}',
-                Icons.trending_down,
-              ),
-              _buildInfoRow(
-                'Total Amount Back',
-                '\$${customer.totalAmountBack.toStringAsFixed(2)}',
-                Icons.money_off,
-              ),
-            ]),
-
-            const SizedBox(height: 16),
-
-            // Transaction History
-            _buildInfoCard('Transaction History', [
-              _buildInfoRow(
-                'Last Sales Date',
-                customer.lastSalesDate.isEmpty ? 'N/A' : customer.lastSalesDate,
-                Icons.calendar_today,
-              ),
-              _buildInfoRow(
-                'Last Invoice No',
-                customer.lastInvoiceNo.isEmpty ? 'N/A' : customer.lastInvoiceNo,
-                Icons.receipt,
-              ),
-              _buildInfoRow(
-                'Last Sold Product',
-                customer.lastSoldProduct.isEmpty
-                    ? 'N/A'
-                    : customer.lastSoldProduct,
-                Icons.shopping_cart,
-              ),
-              _buildInfoRow(
-                'Last Transaction Date',
-                customer.lastTransactionDate,
-                Icons.access_time,
-              ),
-            ]),
-
-            const SizedBox(height: 16),
-
-            // Additional Information
-            if (customer.notes != null || customer.parentCustomer != null)
-              _buildInfoCard('Additional Information', [
-                if (customer.parentCustomer != null)
-                  _buildInfoRow(
-                    'Parent Customer',
-                    customer.parentCustomer!,
-                    Icons.person_outline,
-                  ),
-                if (customer.notes != null)
-                  _buildInfoRow('Notes', customer.notes!, Icons.note),
-              ]),
-
-            const SizedBox(height: 32),
-          ],
-        ),
+                    )
+                    : null,
+          ),
+          const SizedBox(height: 12),
+          AppText(
+            text: customer.name,
+            textfontsize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.blue.shade800,
+          ),
+          const SizedBox(height: 8),
+          AppText(
+            text: customer.custType,
+            textfontsize: 18,
+            color: Colors.blue.shade600,
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildInfoCard(String title, List<Widget> children) {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
-            ),
-            const SizedBox(height: 12),
-            ...children,
-          ],
+  Widget sectionData(
+    String title,
+    List<Widget> children,
+    BuildContext context,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppText(
+          text: title,
+          textfontsize: 20,
+          color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black,
         ),
-      ),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          child: Column(children: children),
+        ),
+        const SizedBox(height: 20),
+      ],
     );
   }
 
-  Widget _buildInfoRow(String label, String value, IconData icon) {
+  Widget details(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 20, color: Colors.grey[600]),
-          const SizedBox(width: 12),
-          Expanded(
-            flex: 2,
+          SizedBox(
+            width: 100,
             child: Text(
               label,
               style: TextStyle(
@@ -223,8 +156,8 @@ class CustomerDetailsPage extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(width: 16),
           Expanded(
-            flex: 3,
             child: Text(
               value,
               style: const TextStyle(fontWeight: FontWeight.w400),

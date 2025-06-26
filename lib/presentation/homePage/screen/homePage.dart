@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gtr_assessment/common/components/app_text.dart';
 import 'package:gtr_assessment/presentation/auth/cubit/login_cubit.dart';
 import 'package:gtr_assessment/presentation/homePage/components/customer_card.dart';
+import 'package:gtr_assessment/presentation/homePage/components/pagination.dart';
 import 'package:gtr_assessment/presentation/homePage/cubit/customer_cubit.dart';
 
 class Homepage extends StatefulWidget {
@@ -13,24 +15,19 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  final ScrollController _scrollController = ScrollController();
-  final TextEditingController _searchController = TextEditingController();
   int _currentPage = 1;
-  final int _pageSize = 20;
-  String _searchQuery = '';
+  final int _pageSize = 15; // Changed to 15 items per page
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
-
     // Load initial customer list with token from login state
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadInitialData();
+      loadInitialData();
     });
   }
 
-  void _loadInitialData() {
+  void loadInitialData() {
     final loginState = context.read<LoginCubit>().state;
     if (loginState is LoginSuccess && loginState.user.token != null) {
       context.read<CustomerCubit>().loadCustomerList(
@@ -44,59 +41,26 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
-      final customerState = context.read<CustomerCubit>().state;
-      final loginState = context.read<LoginCubit>().state;
-
-      if (customerState is CustomerLoaded &&
-          customerState.customerList.hasNextPage &&
-          loginState is LoginSuccess &&
-          loginState.user.token != null) {
-        _currentPage++;
-        context.read<CustomerCubit>().loadCustomerList(
-          searchQuery: _searchQuery,
-          pageNo: _currentPage,
-          pageSize: _pageSize,
-          token: loginState.user.token!,
-        );
-      }
-    }
-  }
-
-  void _performSearch() {
+  void loadPage(int pageNumber) {
     final loginState = context.read<LoginCubit>().state;
-
     if (loginState is LoginSuccess && loginState.user.token != null) {
-      _searchQuery = _searchController.text.trim();
-      _currentPage = 1;
+      setState(() {
+        _currentPage = pageNumber;
+      });
       context.read<CustomerCubit>().loadCustomerList(
-        searchQuery: _searchQuery,
         pageNo: _currentPage,
         pageSize: _pageSize,
         token: loginState.user.token!,
       );
-    } else {
-      // If no valid token, redirect to login
-      context.go('/login');
     }
   }
 
-  void _retryLoad() {
+  void retryLoading() {
     final loginState = context.read<LoginCubit>().state;
 
     if (loginState is LoginSuccess && loginState.user.token != null) {
       _currentPage = 1;
       context.read<CustomerCubit>().loadCustomerList(
-        searchQuery: _searchQuery,
         pageNo: _currentPage,
         pageSize: _pageSize,
         token: loginState.user.token!,
@@ -105,6 +69,11 @@ class _HomepageState extends State<Homepage> {
       // If no valid token, redirect to login
       context.go('/login');
     }
+  }
+
+  // Find the total numbers of pages based on total count and page size
+  int totalPageCount(int totalCount) {
+    return (totalCount / _pageSize).ceil();
   }
 
   @override
@@ -124,10 +93,15 @@ class _HomepageState extends State<Homepage> {
               if (loginState is LoginSuccess) {
                 title = 'Welcome, ${loginState.user.name}';
               }
-              return Text(title);
+              return AppText(
+                text: title,
+                textfontsize: 20,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              );
             },
           ),
-          backgroundColor: Colors.blue,
+          backgroundColor: Theme.of(context).primaryColor,
           foregroundColor: Colors.white,
           actions: [
             IconButton(
@@ -144,168 +118,80 @@ class _HomepageState extends State<Homepage> {
           builder: (context, loginState) {
             // Check if user is properly logged in
             if (loginState is! LoginSuccess || loginState.user.token == null) {
-              return const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.login, size: 64, color: Colors.grey),
-                    SizedBox(height: 16),
-                    Text(
-                      'Please log in to continue',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
-                    ),
-                  ],
-                ),
-              );
+              // Show snackbar and redirect to login
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please log in to continue'),
+                    backgroundColor: Colors.orange,
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+                context.go('/login');
+              });
+
+              // Return empty container while redirecting
+              return const SizedBox.shrink();
             }
 
-            return Column(
-              children: [
-                // Search Bar
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
+            return BlocBuilder<CustomerCubit, CustomerState>(
+              builder: (context, state) {
+                if (state is CustomerLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is CustomerError) {
+                  // Show error snackbar
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error: ${state.message}'),
+                        backgroundColor: Colors.red,
+                        duration: const Duration(seconds: 4),
+                        action: SnackBarAction(
+                          label: 'Retry',
+                          textColor: Colors.white,
+                          onPressed: retryLoading,
+                        ),
+                      ),
+                    );
+                  });
+
+                  // Return loading indicator while handling error
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is CustomerLoaded) {
+                  final customers = state.customerList.customers;
+                  final totalPages = totalPageCount(
+                    state.customerList.totalCount,
+                  );
+                  //As From API customer list isnt empty
+                  //therefore we wont handle the if customer list is empty
+                  return Column(
                     children: [
+                      // Customer List into the Customer Card
                       Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          decoration: InputDecoration(
-                            hintText: 'Search customers...',
-                            prefixIcon: const Icon(Icons.search),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                          ),
-                          onSubmitted: (_) => _performSearch(),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: _performSearch,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                        ),
-                        child: const Text('Search'),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Customer List
-                Expanded(
-                  child: BlocBuilder<CustomerCubit, CustomerState>(
-                    builder: (context, state) {
-                      if (state is CustomerLoading) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (state is CustomerError) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.error_outline,
-                                size: 64,
-                                color: Colors.red[300],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Error: ${state.message}',
-                                style: const TextStyle(fontSize: 16),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: _retryLoad,
-                                child: const Text('Retry'),
-                              ),
-                            ],
-                          ),
-                        );
-                      } else if (state is CustomerLoaded) {
-                        final customers = state.customerList.customers;
-
-                        if (customers.isEmpty) {
-                          return const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.people_outline,
-                                  size: 64,
-                                  color: Colors.grey,
-                                ),
-                                SizedBox(height: 16),
-                                Text(
-                                  'No customers found',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-
-                        return ListView.builder(
-                          controller: _scrollController,
-                          itemCount:
-                              customers.length +
-                              (state.customerList.hasNextPage ? 1 : 0),
+                        child: ListView.builder(
+                          itemCount: customers.length,
                           itemBuilder: (context, index) {
-                            if (index == customers.length) {
-                              // Loading indicator for pagination
-                              return const Padding(
-                                padding: EdgeInsets.all(16),
-                                child: Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              );
-                            }
-
                             return CustomerCard(customer: customers[index]);
                           },
-                        );
-                      } else {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.refresh,
-                                size: 64,
-                                color: Colors.grey,
-                              ),
-                              const SizedBox(height: 16),
-                              const Text(
-                                'Pull to refresh or search for customers.',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: _loadInitialData,
-                                child: const Text('Load Customers'),
-                              ),
-                            ],
+                        ),
+                      ),
+
+                      // Pagination Widget
+                      if (totalPages > 1)
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          child: Pagination(
+                            currentPage: _currentPage,
+                            totalPages: totalPages,
+                            onPageChanged: loadPage,
                           ),
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ],
+                        ),
+                    ],
+                  );
+                } else {
+                  return SizedBox();
+                }
+              },
             );
           },
         ),
