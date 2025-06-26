@@ -8,6 +8,13 @@ final GoRouter _router = GoRouter(
     GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
     GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
     GoRoute(path: '/home', builder: (context, state) => const Homepage()),
+    GoRoute(
+      path: '/customer-details',
+      builder: (context, state) {
+        final customer = state.extra as Customer;
+        return CustomerDetailsPage(customer: customer);
+      },
+    ),
   ],
 );
 GoRouter get appRouter => _router;

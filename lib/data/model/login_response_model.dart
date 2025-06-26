@@ -10,10 +10,10 @@ class LoginResponseModel extends User {
 
   factory LoginResponseModel.fromJson(Map<String, dynamic> json) {
     return LoginResponseModel(
-      id: json['Id']?.toString() ?? '',
+      id: json['UserId']?.toString() ?? json['Id']?.toString() ?? '1',
       email: json['Email'] ?? '',
-      name: json['Name'] ?? json['UserName'] ?? '',
-      token: json['Token'],
+      name: json['UserName'] ?? json['Name'] ?? '',
+      token: json['Token'] ?? '',
     );
   }
 
