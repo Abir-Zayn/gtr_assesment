@@ -1,4 +1,5 @@
 part of 'splash_page_imports.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -59,7 +60,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: Theme.of(context).primaryColorLight,
       body: Center(
         child: FadeTransition(
           opacity: fadeAnimation,

@@ -12,9 +12,9 @@ class _LoginPageState extends State<LoginPage> {
   final passwordController = TextEditingController();
   bool passwordVisibility = false;
 
- //LoginLoading --> Spinner
- //LoginSuccess --> navigate to Home
- //LoginFailure --> Error
+  //LoginLoading --> Spinner
+  //LoginSuccess --> navigate to Home
+  //LoginFailure --> Error
 
   @override
   void dispose() {
@@ -39,7 +39,10 @@ class _LoginPageState extends State<LoginPage> {
 
   void futureUpdateNotice() {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: AppText(text: "Coming Soon", textfontsize: 12)),
+      SnackBar(
+        backgroundColor: Colors.yellow,
+        content: AppText(text: "Coming Soon", textfontsize: 12),
+      ),
     );
   }
 
@@ -52,7 +55,6 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        elevation: 0,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
@@ -96,17 +98,20 @@ class _LoginPageState extends State<LoginPage> {
         },
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.symmetric(
+              vertical: 10.0,
+              horizontal: 20.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 40),
+                const SizedBox(height: 10),
                 // Company Logo
                 Align(
                   alignment: Alignment.topLeft,
                   child: Image.asset(AppImgSrc.appLogo, height: 90, width: 120),
                 ),
-                const SizedBox(height: 48),
+                const SizedBox(height: 35),
                 // Welcome Text
                 AppText(
                   text: 'Welcome Back',
@@ -166,7 +171,9 @@ class _LoginPageState extends State<LoginPage> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      futureUpdateNotice();
+                    },
                     child: Text(
                       'Forgot Password?',
                       style: TextStyle(

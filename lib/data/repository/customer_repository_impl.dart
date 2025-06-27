@@ -18,7 +18,7 @@ class CustomerRepositoryImpl extends CustomerRepository {
     required String token,
   }) async {
     try {
-      debugPrint('Repository calling data source with token: $token'); // Debug log
+      debugPrint('Repository calling data source with token: $token'); 
 
       final response = await dataSrc.getCustomerList(
         searchQuery: searchQuery,
@@ -30,7 +30,7 @@ class CustomerRepositoryImpl extends CustomerRepository {
 
       debugPrint(
         'Repository received response with ${response.customers.length} customers',
-      ); // Debug log
+      );
       return Right(response);
     } catch (e) {
       debugPrint('Repository error: $e'); // Debug log

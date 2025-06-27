@@ -146,21 +146,12 @@ class CustomerDetailsPage extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 100,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[700],
-              ),
-            ),
-          ),
+          SizedBox(width: 170, child: AppText(text: label, textfontsize: 14)),
           const SizedBox(width: 16),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(fontWeight: FontWeight.w400),
+              style: const TextStyle(fontWeight: FontWeight.w500),
             ),
           ),
         ],

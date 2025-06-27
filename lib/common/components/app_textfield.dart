@@ -34,6 +34,7 @@ class AppTextfield extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
+    final focusedBorderColor = isDarkMode ? Colors.white : theme.primaryColor;
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
@@ -44,6 +45,9 @@ class AppTextfield extends StatelessWidget {
       maxLines: maxLines,
       decoration: InputDecoration(
         labelText: labelText,
+        labelStyle: TextStyle(
+          color: isDarkMode ? Colors.white70 : Colors.grey[600],
+        ),
         hintText: hintText,
         prefixIcon:
             prefixIcon != null
@@ -57,6 +61,10 @@ class AppTextfield extends StatelessWidget {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey[300]!),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: focusedBorderColor, width: 2),
         ),
         filled: true,
         fillColor: Colors.transparent,

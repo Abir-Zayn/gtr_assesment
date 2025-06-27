@@ -14,14 +14,15 @@ class Pagination extends StatelessWidget {
   });
 
   List<int> visiblePagesNo() {
-    const int maxVisiblePages = 5;
+    // Reduce max visible pages for mobile screens
+    const int maxVisiblePages = 3;
 
     if (totalPages <= maxVisiblePages) {
       return List.generate(totalPages, (index) => index + 1);
     }
 
-    int start = currentPage - 2;
-    int end = currentPage + 2;
+    int start = currentPage - 1;
+    int end = currentPage + 1;
 
     if (start < 1) {
       start = 1;
@@ -38,69 +39,73 @@ class Pagination extends StatelessWidget {
   Widget build(BuildContext context) {
     final visiblePages = visiblePagesNo();
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Previous button
-        if (currentPage > 1)
-          navigationButton(
-            icon: Icons.chevron_left,
-            onPressed: () => onPageChanged(currentPage - 1),
-          ),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Previous button
+          if (currentPage > 1)
+            navigationButton(
+              icon: Icons.chevron_left,
+              onPressed: () => onPageChanged(currentPage - 1),
+            ),
 
-        const SizedBox(width: 8),
+          const SizedBox(width: 4),
 
-        // First page if not visible
-        if (visiblePages.first > 1) ...[
-          pageBtn(1),
-          if (visiblePages.first > 2) ellipsis(),
+          // First page if not visible
+          if (visiblePages.first > 1) ...[
+            pageBtn(1, context),
+            if (visiblePages.first > 2) ellipsis(),
+          ],
+
+          // Visible page numbers
+          ...visiblePages.map((page) => pageBtn(page, context)),
+
+          // Last page if not visible
+          if (visiblePages.last < totalPages) ...[
+            if (visiblePages.last < totalPages - 1) ellipsis(),
+            pageBtn(totalPages, context),
+          ],
+
+          const SizedBox(width: 4),
+
+          // Next button
+          if (currentPage < totalPages)
+            navigationButton(
+              icon: Icons.chevron_right,
+              onPressed: () => onPageChanged(currentPage + 1),
+            ),
         ],
-
-        // Visible page numbers
-        ...visiblePages.map((page) => pageBtn(page)),
-
-        // Last page if not visible
-        if (visiblePages.last < totalPages) ...[
-          if (visiblePages.last < totalPages - 1) ellipsis(),
-          pageBtn(totalPages),
-        ],
-
-        const SizedBox(width: 8),
-
-        // Next button
-        if (currentPage < totalPages)
-          navigationButton(
-            icon: Icons.chevron_right,
-            onPressed: () => onPageChanged(currentPage + 1),
-          ),
-      ],
+      ),
     );
   }
 
-  Widget pageBtn(int page) {
+  Widget pageBtn(int page, BuildContext context) {
     final isCurrentPage = page == currentPage;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 2),
+      margin: const EdgeInsets.symmetric(horizontal: 1),
       child: Material(
         color: isCurrentPage ? Colors.blue : Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6),
         child: InkWell(
           onTap: isCurrentPage ? null : () => onPageChanged(page),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(6),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
               border: Border.all(
                 color: isCurrentPage ? Colors.blue : Colors.grey.shade300,
               ),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(6),
             ),
             child: AppText(
               text: page.toString(),
-              textfontsize: 14,
+              textfontsize: 12,
               fontWeight: isCurrentPage ? FontWeight.w600 : FontWeight.normal,
-              color: isCurrentPage ? Colors.white : Colors.black87,
+              color:
+                  isCurrentPage ? Theme.of(context).primaryColor : Colors.white,
             ),
           ),
         ),
@@ -113,16 +118,16 @@ class Pagination extends StatelessWidget {
     required VoidCallback onPressed,
   }) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 2),
+      margin: const EdgeInsets.symmetric(horizontal: 1),
       child: Material(
         color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6),
         child: InkWell(
           onTap: onPressed,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(6),
           child: Container(
-            padding: const EdgeInsets.all(8),
-            child: Icon(icon, size: 20, color: Colors.black87),
+            padding: const EdgeInsets.all(6),
+            child: Icon(icon, size: 16, color: Colors.black87),
           ),
         ),
       ),
@@ -131,8 +136,8 @@ class Pagination extends StatelessWidget {
 
   Widget ellipsis() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      child: const AppText(text: '...', textfontsize: 14, color: Colors.grey),
+      margin: const EdgeInsets.symmetric(horizontal: 2),
+      child: const AppText(text: '...', textfontsize: 12, color: Colors.grey),
     );
   }
 }
